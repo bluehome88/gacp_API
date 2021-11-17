@@ -4,7 +4,7 @@ ini_set('display_errors', 'On');
 
 	require_once("config.php");
 
-	/************* Step 1: Authorization *************/
+	/************* Step 1: Client Credentials Grant Type *************/
 	$auth_url = BASE_URL. "/oauth/v1/token";
 
 	$ch = curl_init();
@@ -36,10 +36,10 @@ ini_set('display_errors', 'On');
 
 echo "Access Token: ".$access_token."<br><br>";
 
-	/************* Step 2: Create Search and get search ID *************/
+	/************* Step 2: Create a Profile Search *************/
 	$search_url = BASE_URL. "/api/v1/profile/search";
-	$ch = curl_init();
 
+	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $search_url);
 	curl_setopt($ch, CURLOPT_POST, 1);
 
@@ -70,8 +70,41 @@ echo "Access Token: ".$access_token."<br><br>";
 	$message		= $responseArr->message;
 	$searchID 		= $responseArr->id;
 	$url 			= $responseArr->url;
-	$profileUrl 	= $responseArr->profileUrl;
+	$profilesUrl 	= $responseArr->profilesUrl;
 
 echo "Search ID: ". $searchID;
 
+	/************* Step 3: Get a List of Profiles by Search ID *************/
+	$list_url = BASE_URL. "/api/v1/profile?searchId=".$searchID;
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $list_url);
+
+	// set header
+	$header = array();
+	$header[] = 'Cache-Control: no-cache';
+	$header[] = 'Content-type: application/json';
+	$header[] = 'Authorization: Bearer'.$access_token;
+	curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
+
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+	$list_result = curl_exec($ch);
+	curl_close($ch);
+
+	$responseArr 		= json_decode( $list_result );
+	$totalCount 		= $responseArr->totalCount;
+	$count 				= $responseArr->count;
+	$pageNumber 		= $responseArr->pageNumber;
+	$pageSize 			= $responseArr->pageSize;
+	$totalPageCount 	= $responseArr->totalPageCount;
+	$firstPageUrl 		= $responseArr->firstPageUrl;
+	$previousPageUrl 	= $responseArr->previousPageUrl;
+	$nextPageUrl 		= $responseArr->nextPageUrl;
+	$lastPageUrl 		= $responseArr->lastPageUrl;
+	$expireDate 		= $responseArr->expireDate;
+	$profiles 			= $responseArr->profiles;
+
+echo "<pre>";
+print_r( $profiles );
 ?>
