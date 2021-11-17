@@ -36,5 +36,42 @@ ini_set('display_errors', 'On');
 
 echo "Access Token: ".$access_token."<br><br>";
 
+	/************* Step 2: Create Search and get search ID *************/
+	$search_url = BASE_URL. "/api/v1/profile/search";
+	$ch = curl_init();
+
+	curl_setopt($ch, CURLOPT_URL, $search_url);
+	curl_setopt($ch, CURLOPT_POST, 1);
+
+	// params
+	$params = json_encode(array(
+				'[Name | Last]' => 'Abel', 
+				'[Member Status]' => 'Active'
+			));
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $params );
+	
+	// set header
+	$header = array();
+	$header[] = 'Cache-Control: no-cache';
+	$header[] = 'Content-type: application/json';
+	$header[] = 'Content-Length: '.strlen($params);
+	$header[] = 'Authorization: Bearer'.$access_token;
+	curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
+
+	// Receive server response ...
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+	$search_result = curl_exec($ch);
+	curl_close($ch);
+
+	$responseArr 	= json_decode( $search_result );
+	$timestamp 		= $responseArr->timestamp;
+	$status 		= $responseArr->status;
+	$message		= $responseArr->message;
+	$searchID 		= $responseArr->id;
+	$url 			= $responseArr->url;
+	$profileUrl 	= $responseArr->profileUrl;
+
+echo "Search ID: ". $searchID;
 
 ?>
