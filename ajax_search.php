@@ -20,22 +20,22 @@
 	$profile_list 		= $response->profiles;
 	$totalCount 		= $response->totalCount;
 
-	$index = 1; $res_array = array();
+	$index = $pageSize * ($pageNum -1) + 1; $res_array = array();
 	foreach( $profile_list as $profile){
 	    $profile = (array) $profile;
 	    
 	    $item = array();
 	    
 		$item[] = $index++;
-		$item[] = $profile['[Profile ID]'];
-		$item[] = $profile['[Name | Last]'];
-		$item[] = $profile['[Name | First]'];
-		$item[] = $profile['Current Title'];
-		$item[] = $profile['[Organization]'];
-		$item[] = $profile['OKEYID'];
-		$item[] = $profile['[Email | Primary]'];
-		$item[] = $profile['[Expiration Date]'];
-		$item[] = $profile['[Member Type]'];
+		$item[] = isset($profile['[Profile ID]'])?$profile['[Profile ID]']:'';
+		$item[] = isset($profile['[Name | Last]'])?$profile['[Name | Last]']:'';
+		$item[] = isset($profile['[Name | First]'])?$profile['[Name | First]']:'';
+		$item[] = isset($profile['Current Title'])?$profile['Current Title']:'';
+		$item[] = isset($profile['[Organization]'])?$profile['[Organization]']:'';
+		$item[] = isset($profile['OKEYID'])?$profile['OKEYID']:'';
+		$item[] = isset($profile['[Email | Primary]'])?$profile['[Email | Primary]']:'';
+		$item[] = isset($profile['[Expiration Date]'])?$profile['[Expiration Date]']:'';
+		$item[] = isset($profile['[Member Type]'])?$profile['[Member Type]']:'';
 
 		array_push( $res_array, $item );
 	}
