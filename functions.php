@@ -43,7 +43,6 @@
 
 		// params
 		$params = json_encode(array(
-					'"[Organization Phone]"' => "",
 					'[Group]' => 'API Current STC Exhibitors',
 					'[Member Status]' => 'Active'
 				));
@@ -75,8 +74,7 @@
 			return $searchID;
 		}
 		else
-			return null;		
-		
+			return null;
 	}
 
 	function getProfileList( $pageNumber = 1, $pageSize = 10 ){
@@ -103,38 +101,86 @@
 		curl_close($ch);
 
 		$responseArr 		= json_decode( $list_result );
-		$totalCount 		= $responseArr->totalCount;
-		$count 				= $responseArr->count;
-		$pageNumber 		= $responseArr->pageNumber;
-		$pageSize 			= $responseArr->pageSize;
-		$totalPageCount 	= $responseArr->totalPageCount;
-		$firstPageUrl 		= $responseArr->firstPageUrl;
-		$previousPageUrl 	= $responseArr->previousPageUrl;
-		$nextPageUrl 		= $responseArr->nextPageUrl;
-		$lastPageUrl 		= $responseArr->lastPageUrl;
-		$expireDate 		= $responseArr->expireDate;
-		$profiles 			= $responseArr->profiles;
+		if( isset($responseArr->totalCount) ){
+			$totalCount 		= $responseArr->totalCount;
+			$count 				= $responseArr->count;
+			$pageNumber 		= $responseArr->pageNumber;
+			$pageSize 			= $responseArr->pageSize;
+			$totalPageCount 	= $responseArr->totalPageCount;
+			$firstPageUrl 		= $responseArr->firstPageUrl;
+			$previousPageUrl 	= $responseArr->previousPageUrl;
+			$nextPageUrl 		= $responseArr->nextPageUrl;
+			$lastPageUrl 		= $responseArr->lastPageUrl;
+			$expireDate 		= $responseArr->expireDate;
+			$profiles 			= $responseArr->profiles;
 
-		return $responseArr;
+			return $responseArr;
+		}
+		else
+			return null;
 	}
 	
-	function sendProfileToMap(){
+	function sendProfileToMap( $profile ){
+
+		// check Exhibitors are existing
+		$organization = isset( $profile['[Organization]'] ) ? $profile['[Organization]'] : '';
+		if( $organization != '' )
+		{
+			$select_url = 'https://api.map-dynamics.com/services/exhibitors/select';
+			$fields = array(
+				'key' 		=> MAP_API_KEY,
+				'company'	=> $organization
+			);
+
+			$api_url = $select_url ."/?". http_build_query($fields);
+
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $api_url);
+			curl_setopt($ch, CURLOPT_POST, 1);
+		
+			// params
+			$params = json_encode( $fields );
+			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields) );
+			
+			// set header
+			$header = array();
+			$header[] = 'Cache-Control: no-cache';
+			$header[] = 'Content-type: application/x-www-form-urlencoded';
+		
+			curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
+		
+			// Receive server response ...
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		
+			$result = curl_exec($ch);
+			curl_close($ch);
+
+			$responseArr 	= json_decode( $result );
+			
+			// if already exists skip
+			if( !empty($responseArr->results) ) 
+			{
+				return;
+			}
+		}
+		
+		// if non exists insert
 		$fields = array(
 			'key' 			=> MAP_API_KEY,
-			'Company'		=> 'Test Company',
-			'Address_1' 	=> '',
-			'Address_2' 	=> '',
-			'City' 			=> '',
-			'State' 		=> '',
-			'Zip' 			=> '',
-			'Website' 		=> '',
+			'Company'		=> $organization,
+			'Address_1' 	=> isset($profile['[Address | Primary | Line 1]']) ? $profile['[Address | Primary | Line 1]'] : '',
+			'Address_2' 	=> isset($profile['[Address | Primary | Line 2]']) ? $profile['[Address | Primary | Line 2]'] : '',
+			'City' 			=> isset($profile['[Address | Primary | City]']) ? $profile['[Address | Primary | City]'] : '',
+			'State' 		=> isset($profile['[Address | Primary | State]']) ? $profile['[Address | Primary | State]'] : '',
+			'Zip' 			=> isset($profile['[Address | Primary | Zip]']) ? $profile['[Address | Primary | Zip]'] : '',
+			'Website' 		=> isset($profile['Website']) ? $profile['Website'] : '',
 			'Twitter_Link' 	=> '',
 			'Facebook_Link' => '',
-			'First_Name' 	=> '',
-			'Last_Name' 	=> '',
-			'Title' 		=> '',
-			'Email' 		=> '',
-			'Phone' 		=> '',
+			'First_Name' 	=> isset($profile['[Name | First]']) ? $profile['[Name | First]'] : '',
+			'Last_Name' 	=> isset($profile['[Name | Last]']) ? $profile['[Name | Last]'] : '',
+			'Title' 		=> isset($profile['Current Title']) ? $profile['Current Title'] : '',
+			'Email' 		=> isset($profile['[Email | Primary]']) ? $profile['[Email | Primary]'] : '',
+			'Phone' 		=> isset($profile['[Phone | Primary]']) ? $profile['[Phone | Primary]'] : '',
 			'Fax' 			=> '',
 			'Admin_First_Name' 	=> '',
 			'Admin_Last_Name' 	=> '',
