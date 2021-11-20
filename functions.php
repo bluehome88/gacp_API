@@ -1,9 +1,6 @@
 <?php
 	// get Access Token
 	function getAccessToken(){
-
-// $access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJyZWFkIiwid3JpdGUiXSwiZXhwIjoxNjM3MzMxOTIyLCJzZXJ2aWNlSWQiOjkyMzgsInVzZXJJZCI6MjAwMTYwODI3MCwiYXV0aG9yaXRpZXMiOlsiUk9MRV9QUk9GSUxFX0FETUlOIiwiUk9MRV9GT1JNU19BRE1JTiIsIlJPTEVfTUVNQkVSU0hJUF9BRE1JTiIsIlJPTEVfQ01TX0FETUlOIiwiUk9MRV9VU0VSIiwiUk9MRV9GSU5BTkNJQUxfQURNSU4iLCJST0xFX1JFUE9SVElOR19BRE1JTiIsIlJPTEVfQURNSU4iLCJST0xFX0NPTU1VTklUWV9BRE1JTiIsIlJPTEVfUFJPRklMRV9JTVBPUlRfQURNSU4iXSwianRpIjoiZTYyYzAyMDUtMzAzZS00ZmQwLWE3ZWEtZDdjNjI2YTFhZTFhIiwiY2xpZW50X2lkIjoiSVp5b1d6ZFVPVjU3WlBiZzJNaUIifQ.EykbPgrcoeR1KF5BQ8ZUavYC2H75_gLJqO3oC2-LNJQ";
-
 		$auth_url = BASE_URL. "/oauth/v1/token";
 
 		$ch = curl_init();
@@ -38,7 +35,6 @@
 
 	function createProfileSearch(){
 		global $access_token, $searchID;
-//$searchID = "ca28a1de-5c9e-497b-b4d1-9e1c113ccbbb";
 		$search_url = BASE_URL. "/api/v1/profile/search";
 
 		$ch = curl_init();
@@ -47,6 +43,8 @@
 
 		// params
 		$params = json_encode(array(
+					'"[Organization Phone]"' => "",
+					'[Group]' => 'API Current STC Exhibitors',
 					'[Member Status]' => 'Active'
 				));
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $params );
@@ -66,17 +64,26 @@
 		curl_close($ch);
 
 		$responseArr 	= json_decode( $search_result );
-		$timestamp 		= $responseArr->timestamp;
-		$status 		= $responseArr->status;
-		$message		= $responseArr->message;
-		$searchID 		= $responseArr->id;
-		$url 			= $responseArr->url;
-		$profilesUrl 	= $responseArr->profilesUrl;
-		return $searchID;
+		if( isset($responseArr->id) ){
+			$timestamp 		= $responseArr->timestamp;
+			$status 		= $responseArr->status;
+			$message		= $responseArr->message;
+			$searchID 		= $responseArr->id;
+			$url 			= $responseArr->url;
+			$profilesUrl 	= $responseArr->profilesUrl;
+
+			return $searchID;
+		}
+		else
+			return null;		
+		
 	}
 
 	function getProfileList( $pageNumber = 1, $pageSize = 10 ){
 		global $searchID, $access_token;
+		
+		if( !$searchID )
+			return null;
 
 		$list_url = BASE_URL. "/api/v1/profile?searchId=".$searchID."&pageNumber=".$pageNumber."&pageSize=".$pageSize;
 
@@ -111,7 +118,52 @@
 		return $responseArr;
 	}
 	
-	function sendProfileToMap( $profile ){
+	function sendProfileToMap(){
+		$fields = array(
+			'key' 			=> MAP_API_KEY,
+			'Company'		=> 'Test Company',
+			'Address_1' 	=> '',
+			'Address_2' 	=> '',
+			'City' 			=> '',
+			'State' 		=> '',
+			'Zip' 			=> '',
+			'Website' 		=> '',
+			'Twitter_Link' 	=> '',
+			'Facebook_Link' => '',
+			'First_Name' 	=> '',
+			'Last_Name' 	=> '',
+			'Title' 		=> '',
+			'Email' 		=> '',
+			'Phone' 		=> '',
+			'Fax' 			=> '',
+			'Admin_First_Name' 	=> '',
+			'Admin_Last_Name' 	=> '',
+			'Admin_Title' 	=> '',
+			'Admin_Email' 	=> '',
+			'Admin_Phone' 	=> ''
+		);
+	
+		$api_url = MAP_BASE_URL ."/?". http_build_query($fields);
+	
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $api_url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+	
+		// params
+		$params = json_encode( $fields );
+		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields) );
 		
+		// set header
+		$header = array();
+		$header[] = 'Cache-Control: no-cache';
+		$header[] = 'Content-type: application/x-www-form-urlencoded';
+	
+		curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
+	
+		// Receive server response ...
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	
+		$result = curl_exec($ch);
+		curl_close($ch);
 	}
 ?>

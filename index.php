@@ -16,12 +16,16 @@
 						<th>Profile ID</th>
 						<th>Last Name</th>
 						<th>First Name</th>
-						<th>Current Title</th>
-						<th>Organization</th>
-						<th>OKEYID</th>
-						<th>Email | Primary</th>
 						<th>Expiration Date</th>
-						<th>Member Type</th>
+						<th>Group</th>
+						<th>Organization</th>
+						<th>Organization Email</th>
+						<th>Organization Phone</th>
+						<th>Corporate Description</th>
+						<th>Corporate Services</th>
+						<th>Website</th>
+						<th>Booth Assingment(s) STC</th>
+						<th>Sponsorship Type - STC</th>
 					</tr>
 				</thead>
 			</table>
@@ -36,6 +40,8 @@
 				"pagingType": "full_numbers",
 				"processing": true,
 		        "serverSide": true,
+		        "searching": false,
+		        "ordering": false,
 		        "ajax": "/sync/ajax_search.php"
 			});	
 		});
