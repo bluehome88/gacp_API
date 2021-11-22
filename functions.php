@@ -6,7 +6,7 @@
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $auth_url);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials");
+		curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials&scope=read");
 
 		// Set Header
 		$header = array();
@@ -20,17 +20,30 @@
 
 		$response = curl_exec($ch);
 		curl_close($ch);
-
+		
 		$responseArr 	= json_decode( $response );
-		$access_token 	= $responseArr->access_token;
-		$token_type 	= $responseArr->token_type;
-		$expires_in		= $responseArr->expires_in;
-		$scope 			= $responseArr->scope;
-		$serviceId 		= $responseArr->serviceId;
-		$userId 		= $responseArr->userId;
-		$jti 			= $responseArr->jti;
+		if( isset($responseArr->access_token ) ){
+			$access_token 	= $responseArr->access_token;
+			$token_type 	= $responseArr->token_type;
+			$expires_in		= $responseArr->expires_in;
+			$scope 			= $responseArr->scope;
+			$serviceId 		= $responseArr->serviceId;
+			$userId 		= $responseArr->userId;
+			$jti 			= $responseArr->jti;
+			
+			if( isset($_GET['debug']) )
+				echo "Access Token: ".$access_token."<br>";
+				
+			return $access_token;
+		}
+		else{
+			if( isset($_GET['debug']) ){
+				echo "<pre>";
+				print_r( $responseArr );
+			}
 
-		return $access_token;
+			return null;
+		}
 	}
 
 	function createProfileSearch(){
@@ -44,7 +57,7 @@
 		// params
 		$params = json_encode(array(
 					'[Group]' => 'API Current STC Exhibitors',
-					'[Member Status]' => 'Active'
+					"[Member Status]" => "Active"
 				));
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $params );
 		
@@ -70,11 +83,19 @@
 			$searchID 		= $responseArr->id;
 			$url 			= $responseArr->url;
 			$profilesUrl 	= $responseArr->profilesUrl;
+			
+			if( isset($_GET['debug']) )
+				echo "Search ID: ". $searchID."<br>";
 
 			return $searchID;
 		}
-		else
+		else{
+			if( isset($_GET['debug']) ){
+				echo "<pre>";
+				print_r( $responseArr );
+			}
 			return null;
+		}
 	}
 
 	function getProfileList( $pageNumber = 1, $pageSize = 10 ){
@@ -116,8 +137,14 @@
 
 			return $responseArr;
 		}
-		else
+		else{
+			if( isset($_GET['debug']) ){
+				echo "<pre>";
+				print_r( $responseArr );
+			}
+
 			return null;
+		}
 	}
 	
 	function sendProfileToMap( $profile ){
@@ -137,11 +164,11 @@
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $api_url);
 			curl_setopt($ch, CURLOPT_POST, 1);
-		
+
 			// params
 			$params = json_encode( $fields );
 			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields) );
-			
+
 			// set header
 			$header = array();
 			$header[] = 'Cache-Control: no-cache';
@@ -188,7 +215,8 @@
 			'Admin_Email' 	=> '',
 			'Admin_Phone' 	=> ''
 		);
-	
+		echo $organization."<br>";
+		
 		$api_url = MAP_BASE_URL ."/?". http_build_query($fields);
 	
 		$ch = curl_init();

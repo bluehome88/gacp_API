@@ -49,13 +49,22 @@
 		$item[] = isset($profile['[Organization]'])?$profile['[Organization]']:'';
 		$item[] = isset($profile['[Organization Email]'])?$profile['[Organization Email]']:'';
 		$item[] = isset($profile['[Organization Phone]'])?$profile['[Organization Phone]']:'';
-		$item[] = isset($profile['Corporate Company Description'])?$profile['Corporate Company Description']:'';
+		$corp_desc = isset($profile['Corporate Company Description'])?$profile['Corporate Company Description']:'';
+		if (strlen($corp_desc) > 60)
+		   $corp_desc = substr($corp_desc, 0, 57) . '...';
+		$item[] = $corp_desc;
 		$item[] = isset($profile['Corporate Services'])?$profile['Corporate Services']:'';
 		$item[] = isset($profile['Website'])?$profile['Website']:'';
 		$item[] = isset($profile['Booth Assignment(s) STC'])?$profile['Booth Assignment(s) STC']:'';
-		$item[] = isset($profile['Sponsorship Type - STC '])?$profile['Sponsorship Type - STC ']:'';
+		$item[] = isset($profile['Booth Type - STC'])?$profile['Booth Type - STC']:'';
 
 		array_push( $res_array, $item );
+	}
+	
+	if( isset($_GET['debug']) ){
+		echo "<pre>";
+		print_r( $profile_list );
+		exit;
 	}
 
 	$aj_res = array(

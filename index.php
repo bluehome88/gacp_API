@@ -6,8 +6,7 @@
 
 </head>
 <body>
-	<div id="wrap">
-		<div class="container">
+	<div id="wrap" style="padding:20px;">
         <h3>MemberClick Data List</h3>
 			<table cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered">
 				<thead>
@@ -25,11 +24,10 @@
 						<th>Corporate Services</th>
 						<th>Website</th>
 						<th>Booth Assingment(s) STC</th>
-						<th>Sponsorship Type - STC</th>
+						<th>Booth Type - STC</th>
 					</tr>
 				</thead>
 			</table>
-		</div>
 	</div>
 	<script src="./js/jquery.min.js"></script>
 	<script src="./js/bootstrap.min.js"></script>
