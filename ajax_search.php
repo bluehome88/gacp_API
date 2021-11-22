@@ -38,8 +38,8 @@
 	$index = $pageSize * ($pageNum -1) + 1; $res_array = array();
 	foreach( $profile_list as $profile){
 	    $profile = (array) $profile;
-	    
 	    $item = array();
+
 		$item[] = $index++;
 		$item[] = isset($profile['[Profile ID]'])?$profile['[Profile ID]']:'';
 		$item[] = isset($profile['[Name | Last]'])?$profile['[Name | Last]']:'';
@@ -47,23 +47,55 @@
 		$item[] = isset($profile['[Expiration Date]'])?$profile['[Expiration Date]']:'';
 		$item[] = isset($profile['[Group]'])?$profile['[Group]']:'';
 		$item[] = isset($profile['[Organization]'])?$profile['[Organization]']:'';
-		$item[] = isset($profile['[Organization Email]'])?$profile['[Organization Email]']:'';
-		$item[] = isset($profile['[Organization Phone]'])?$profile['[Organization Phone]']:'';
+/*
+		$item['org_id'] = '';
+		$item['org_email'] = isset($profile['[Organization Email]'])?$profile['[Organization Email]']:'';
+		$item['org_phone'] = isset($profile['[Organization Phone]'])?$profile['[Organization Phone]']:'';
 		$corp_desc = isset($profile['Corporate Company Description'])?$profile['Corporate Company Description']:'';
 		if (strlen($corp_desc) > 60)
 		   $corp_desc = substr($corp_desc, 0, 57) . '...';
-		$item[] = $corp_desc;
-		$item[] = isset($profile['Corporate Services'])?$profile['Corporate Services']:'';
-		$item[] = isset($profile['Website'])?$profile['Website']:'';
-		$item[] = isset($profile['Booth Assignment(s) STC'])?$profile['Booth Assignment(s) STC']:'';
-		$item[] = isset($profile['Booth Type - STC'])?$profile['Booth Type - STC']:'';
+		$item['corp_desc'] = $corp_desc;
+		$item['corp_service'] = isset($profile['Corporate Services'])?$profile['Corporate Services']:'';
+		$item['website'] = isset($profile['Website'])?$profile['Website']:'';
+		$item['booth_assign'] = isset($profile['Booth Assignment(s) STC'])?$profile['Booth Assignment(s) STC']:'';
+		$item['booth_type'] = isset($profile['Booth Type - STC'])?$profile['Booth Type - STC']:'';
+*/
+
+    
+	    // Organization info
+	    $orgName = isset($profile['[Organization]'])?$profile['[Organization]']:'';
+	    if( $orgName ){
+	    	$searchID = createProfileSearch( array('[Organization]' => $orgName ) );
+	    	$response = getProfileList();
+	    	$org_profiles = $response->profiles;
+
+	    	foreach( $org_profiles as $org_profile ){
+		    	$org_profile = (array) $org_profile;
+		    	if( !isset($org_profile['[Organization Email]']) )
+			    	continue;
+			    	
+				$item[] = isset($org_profile['[Profile ID]'])?$org_profile['[Profile ID]']:'';
+				$item[] = isset($org_profile['[Organization Email]'])?$org_profile['[Organization Email]']:'';
+				$item[] = isset($org_profile['[Organization Phone]'])?$org_profile['[Organization Phone]']:'';
+				$corp_desc = isset($org_profile['Corporate Company Description'])?$org_profile['Corporate Company Description']:'';
+				if (strlen($corp_desc) > 60)
+				   $corp_desc = substr($corp_desc, 0, 57) . '...';
+				$item[] = $corp_desc;
+				$item[] = isset($org_profile['Corporate Services'])?$org_profile['Corporate Services']:'';
+				$item[] = isset($org_profile['Website'])?$org_profile['Website']:'';
+				$item[] = isset($org_profile['Booth Assignment(s) STC'])?$org_profile['Booth Assignment(s) STC']:'';
+				$item[] = isset($org_profile['Booth Type - STC'])?$org_profile['Booth Type - STC']:'';
+	
+				break;
+	    	}
+	    }
 
 		array_push( $res_array, $item );
 	}
 	
 	if( isset($_GET['debug']) ){
 		echo "<pre>";
-		print_r( $profile_list );
+		print_r( $res_array );
 		exit;
 	}
 

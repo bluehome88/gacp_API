@@ -18,6 +18,7 @@
 						<th>Expiration Date</th>
 						<th>Group</th>
 						<th>Organization</th>
+						<th>Organization ID</th>
 						<th>Organization Email</th>
 						<th>Organization Phone</th>
 						<th>Corporate Description</th>

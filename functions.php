@@ -46,7 +46,7 @@
 		}
 	}
 
-	function createProfileSearch(){
+	function createProfileSearch( $init_param = array('[Group]' => 'API Current STC Exhibitors')){
 		global $access_token, $searchID;
 		$search_url = BASE_URL. "/api/v1/profile/search";
 
@@ -55,10 +55,7 @@
 		curl_setopt($ch, CURLOPT_POST, 1);
 
 		// params
-		$params = json_encode(array(
-					'[Group]' => 'API Current STC Exhibitors',
-					"[Member Status]" => "Active"
-				));
+		$params = json_encode( array_merge( $init_param, array("[Member Status]" => "Active")) );
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $params );
 		
 		// set header
