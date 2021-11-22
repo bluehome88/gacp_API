@@ -9,4 +9,6 @@
 	const MAP_BASE_URL = "https://checkout.map-dynamics.com/v3/start";
 	const MAP_API_KEY = "ex2QXoH2J1mWE";
 	const MAP_API_SECRET = "seDCE14e64vGM";
+	
+	date_default_timezone_set('America/New_York');
 ?>
