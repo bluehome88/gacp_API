@@ -145,13 +145,7 @@
 	}
 	
 	function sendProfileToMap( $profile ){
-/*
 
-echo "<pre>";
-print_r( $profile ); 
-*/
-// exit;
-		// check Exhibitors are existing
 		$organization = isset( $profile['[Organization]'] ) ? $profile['[Organization]'] : '';
 		// if non exists insert
 		$call = "exhibitors/insert";
@@ -168,29 +162,33 @@ print_r( $profile );
 		
 		$fields = array(
 			'key' 			=> MAP_API_KEY,
-			'Company'		=> $organization,
-			'Address_1' 	=> isset($profile['[Address | Primary | Line 1]']) ? $profile['[Address | Primary | Line 1]'] : '',
-			'Address_2' 	=> isset($profile['[Address | Primary | Line 2]']) ? $profile['[Address | Primary | Line 2]'] : '',
-			'City' 			=> isset($profile['[Address | Primary | City]']) ? $profile['[Address | Primary | City]'] : '',
-			'State' 		=> isset($profile['[Address | Primary | State]']) ? $profile['[Address | Primary | State]'] : '',
-			'Zip' 			=> isset($profile['[Address | Primary | Zip]']) ? $profile['[Address | Primary | Zip]'] : '',
-			'Website' 		=> isset($profile['Website']) ? $profile['Website'] : '',
-			'Twitter_Link' 	=> '',
-			'Facebook_Link' => '',
-			'First_Name' 	=> isset($profile['[Name | First]']) ? $profile['[Name | First]'] : '',
-			'Last_Name' 	=> isset($profile['[Name | Last]']) ? $profile['[Name | Last]'] : '',
-			'Title' 		=> isset($profile['Current Title']) ? $profile['Current Title'] : '',
-			'Email' 		=> isset($profile['[Email | Primary]']) ? $profile['[Email | Primary]'] : '',
-			'Phone' 		=> isset($profile['[Phone | Primary]']) ? $profile['[Phone | Primary]'] : '',
-			'Fax' 			=> '',
-			'Admin_First_Name' 	=> '',
-			'Admin_Last_Name' 	=> '',
-			'Admin_Title' 	=> '',
-			'Admin_Email' 	=> '',
-			'Admin_Phone' 	=> '',
-			'booths' 		=> $booth_value
+			'company'		=> $organization,
+			'description'	=> isset($profile['org_info']['Corporate Company Description']) ? $profile['org_info']['Corporate Company Description'] : '',
+			'website'		=> isset($profile['org_info']['Website']) ? $profile['org_info']['Website'] : '',
+			'address_1'		=> isset($profile['org_info']['[Address | Primary | Line 1]']) ? $profile['org_info']['[Address | Primary | Line 1]'] : '',
+			'address_2'		=> isset($profile['org_info']['[Address | Primary | Line 2]']) ? $profile['org_info']['[Address | Primary | Line 2]'] : '',
+			'city'			=> isset($profile['org_info']['[Organization Address | City]']) ? $profile['org_info']['[Organization Address | City]'] : '',
+			'state'			=> isset($profile['org_info']['[Organization Address | State]']) ? $profile['org_info']['[Organization Address | State]'] : '',
+			'country'		=> isset($profile['org_info']['[Organization Address | Country]']) ? $profile['org_info']['[Organization Address | Country]'] : '',
+			'zip'			=> isset($profile['org_info']['[Organization Address | Zip]']) ? $profile['org_info']['[Organization Address | Zip]'] : '',
+			'first_name'	=> isset($profile['[Name | First]'])?$profile['[Name | First]']:'',
+			'last_name'		=> isset($profile['[Name | Last]'])?$profile['[Name | Last]']:'',
+			'title'			=> isset($profile['Current Title'])?$profile['Current Title']:'',
+			'email'			=> isset($profile['org_info']['[Email | Primary]']) ? $profile['org_info']['[Email | Primary]'] : '',
+			'phone'			=> isset($profile['org_info']['[Organization Phone]']) ? $profile['org_info']['[Organization Phone]'] : '',
+			'fax'			=> '',
+			'keywords'		=> '',
+			'image'			=> '',
+			'twitter_link'	=> '',
+			'facebook_link'	=> '',
+			'admin_first_name'	=> isset($profile['[Name | First]'])?$profile['[Name | First]']:'',
+			'admin_last_name'	=> isset($profile['[Name | Last]'])?$profile['[Name | Last]']:'',
+			'admin_title'	=> isset($profile['Current Title'])?$profile['Current Title']:'',
+			'admin_email'	=> isset($profile['[Email | Primary]'])?$profile['[Email | Primary]']:'',
+			'admin_phone'	=> isset($profile['[Phone | Primary]'])?$profile['[Phone | Primary]']:'',
+			'internal_memo'	=> '',
+			'booths'		=> $booth_value
 		);
-
 
 		if( $organization != '' )
 		{
