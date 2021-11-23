@@ -145,50 +145,27 @@
 	}
 	
 	function sendProfileToMap( $profile ){
+/*
 
+echo "<pre>";
+print_r( $profile ); 
+*/
+// exit;
 		// check Exhibitors are existing
 		$organization = isset( $profile['[Organization]'] ) ? $profile['[Organization]'] : '';
-		if( $organization != '' )
-		{
-			$select_url = 'https://api.map-dynamics.com/services/exhibitors/select';
-			$fields = array(
-				'key' 		=> MAP_API_KEY,
-				'company'	=> $organization
-			);
-
-			$api_url = $select_url ."/?". http_build_query($fields);
-
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, $api_url);
-			curl_setopt($ch, CURLOPT_POST, 1);
-
-			// params
-			$params = json_encode( $fields );
-			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields) );
-
-			// set header
-			$header = array();
-			$header[] = 'Cache-Control: no-cache';
-			$header[] = 'Content-type: application/x-www-form-urlencoded';
-		
-			curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
-		
-			// Receive server response ...
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		
-			$result = curl_exec($ch);
-			curl_close($ch);
-
-			$responseArr 	= json_decode( $result );
-			
-			// if already exists skip
-			if( !empty($responseArr->results) ) 
-			{
-				return;
-			}
+		// if non exists insert
+		$call = "exhibitors/insert";
+		$booths = isset($profile['org_info']['Booth Assignment(s) STC'])?$profile['org_info']['Booth Assignment(s) STC']:'';
+		$booth_value = ''; $count= 0;
+		foreach( $booths as $booth ){
+			if( $count == 0 )
+				$booth_value = intval( $booth );
+			else
+				$booth_value .= ",". intval( $booth );
+				
+			$count++;
 		}
 		
-		// if non exists insert
 		$fields = array(
 			'key' 			=> MAP_API_KEY,
 			'Company'		=> $organization,
@@ -210,12 +187,99 @@
 			'Admin_Last_Name' 	=> '',
 			'Admin_Title' 	=> '',
 			'Admin_Email' 	=> '',
-			'Admin_Phone' 	=> ''
+			'Admin_Phone' 	=> '',
+			'booths' 		=> $booth_value
 		);
-		echo $organization."<br>";
+
+
+		if( $organization != '' )
+		{
+			$select_url = 'https://api.map-dynamics.com/services/exhibitors/select';
+			$ex_fields = array(
+				'key' 		=> MAP_API_KEY,
+				'company'	=> $organization
+			);
+
+			$api_url = $select_url ."/?". http_build_query($ex_fields);
+
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $api_url);
+			curl_setopt($ch, CURLOPT_POST, 1);
+
+			// params
+			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($ex_fields) );
+
+			// set header
+			$header = array();
+			$header[] = 'Cache-Control: no-cache';
+			$header[] = 'Content-type: application/x-www-form-urlencoded';
 		
-		$api_url = MAP_BASE_URL ."/?". http_build_query($fields);
+			curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
+		
+			// Receive server response ...
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		
+			$result = curl_exec($ch);
+			curl_close($ch);
+
+			$responseArr 	= json_decode( $result );
+			
+			// if already exists skip
+			if( !empty($responseArr->results) ) 
+			{
+				$ex_results = $responseArr->results;
+				$fields['exhibitor_id'] = $ex_results[0]->ID;
+
+				$call = "exhibitors/update";
+			}
+		}
+		
+		$access_hash = md5(MAP_API_SECRET.$call);
+		$post_field = array(
+			"key" 			=> MAP_API_KEY,
+			"access_hash" 	=> $access_hash,
+			"call" 			=> $call,
+			"format"		=> "json"
+		);
+		
+		$api_url = "https://api.map-dynamics.com/services/auth/";
 	
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $api_url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+	
+		// params
+		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_field) );
+		
+		// set header
+		$header = array();
+		$header[] = 'Cache-Control: no-cache';
+		$header[] = 'Content-type: application/x-www-form-urlencoded';
+	
+		curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
+	
+		// Receive server response ...
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	
+		$result = curl_exec($ch);
+		curl_close($ch);
+	
+		$responseArr = json_decode( $result );
+		$access_token = $responseArr->results->hash;
+echo "<br>$call----$organization-----". $access_token;
+		
+		// Insert Exhibitors to map dynamics
+		$fields['hash'] = $access_token;
+/*
+echo "<pre>";
+print_r( $fields ); 
+*/
+
+// Log code for cron
+error_log( date("m-d-Y H:i:s") .": ".$organization."\n", 3, "./cron_log.txt");
+		
+		$api_url = "https://api.map-dynamics.com/services/".$call."/?". http_build_query($fields);
+
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $api_url);
 		curl_setopt($ch, CURLOPT_POST, 1);
@@ -236,5 +300,14 @@
 	
 		$result = curl_exec($ch);
 		curl_close($ch);
+	
+		$response = json_decode( $result );
+echo "<pre>";
+print_r( $response );
+		if( isset( $response->results ) )
+			error_log( date("m-d-Y H:i:s") .": ".print_r( $response->results, true)."\n\r", 3, "./cron_log.txt");
+		else
+			error_log( date("m-d-Y H:i:s") .": ".print_r( $response->status_details, true)."\\rn", 3, "./cron_log.txt");
+
 	}
 ?>

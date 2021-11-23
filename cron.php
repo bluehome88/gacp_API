@@ -27,7 +27,25 @@
 		$profile_list 		= $response->profiles;
 		foreach( $profile_list as $profile){
 		    $profile = (array) $profile;
-		    
+
+			$orgName = isset($profile['[Organization]'])?$profile['[Organization]']:'';
+		    if( $orgName ){
+		    	$searchID = createProfileSearch( array('[Organization]' => $orgName ) );
+		    	$response = getProfileList();
+		    	$org_profiles = $response->profiles;
+
+		    	foreach( $org_profiles as $org_profile ){
+			    	$org_profile = (array) $org_profile;
+			    	if( !isset($org_profile['[Organization Email]']) )
+				    	continue;
+				    	
+					$profile['org_info'] = $org_profile;
+		
+					break;
+		    	}
+		    }
+
+
 		    sendProfileToMap( $profile );
 		}
 		$pageNum++;
