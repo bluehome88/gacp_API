@@ -83,8 +83,8 @@
 				$item[] = $corp_desc;
 				$item[] = isset($org_profile['Corporate Services'])?$org_profile['Corporate Services']:'';
 				$item[] = isset($org_profile['Website'])?$org_profile['Website']:'';
-				$item[] = isset($org_profile['Booth Assignment(s) STC'])?$org_profile['Booth Assignment(s) STC']:'';
-				$item[] = isset($org_profile['Booth Type - STC'])?$org_profile['Booth Type - STC']:'';
+				$item[] = isset($profile['Booth Assignment(s) STC'])?$profile['Booth Assignment(s) STC']:'';
+				$item[] = isset($profile['Booth Type - STC'])?$profile['Booth Type - STC']:'';
 	
 				break;
 	    	}

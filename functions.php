@@ -149,17 +149,21 @@
 		$organization = isset( $profile['[Organization]'] ) ? $profile['[Organization]'] : '';
 		// if non exists insert
 		$call = "exhibitors/insert";
-		$booths = isset($profile['org_info']['Booth Assignment(s) STC'])?$profile['org_info']['Booth Assignment(s) STC']:'';
+		$booths = isset($profile['Booth Assignment(s) STC'])?$profile['Booth Assignment(s) STC']:'';
 		$booth_value = ''; $count= 0;
-		foreach( $booths as $booth ){
-			if( $count == 0 )
-				$booth_value = intval( $booth );
-			else
-				$booth_value .= ",". intval( $booth );
-				
-			$count++;
+		if( is_array( $booths )){ 
+			foreach( $booths as $booth ){
+				if( $count == 0 )
+					$booth_value = intval( $booth );
+				else
+					$booth_value .= ",". intval( $booth );
+					
+				$count++;
+			}
 		}
-		
+		else
+			$booth_value = $booths;
+
 		$fields = array(
 			'key' 			=> MAP_API_KEY,
 			'company'		=> $organization,
