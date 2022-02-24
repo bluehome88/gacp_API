@@ -10,5 +10,7 @@
 	const MAP_API_KEY = "ex2QXoH2J1mWE";
 	const MAP_API_SECRET = "seDCE14e64vGM";
 	
+	const DEFAULT_GROUP_NAME = 'API Current STC Exhibitors';
+
 	date_default_timezone_set('America/New_York');
 ?>
